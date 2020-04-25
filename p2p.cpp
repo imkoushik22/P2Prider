@@ -1,8 +1,15 @@
 #include<bits/stdc++.h>
 #include<sys/time.h>
+#include<math.h>
 #include "picosha2.h"
 using namespace std;
+int p= 71;  //(the prime number)
+int g= 13;
+int ran= 8; //(the random value)
 
+int difficulty=2;
+unordered_map<string,int> verification;
+multimap<string,string> user_transactions;
 class Block
 {
     public:
@@ -42,37 +49,30 @@ class Block
 			nonce ++;
 			hash = calculateHash();
 		}
-		cout<<"Block Mined!!! : "<<hash;
 	}
     private:
     long int timeStamp;
     int nonce;
     string data;
 };
+vector<Block> blockchain;
 struct rider
 {
-    string name;
+    int aadhar;
     string userid;
     string source;
     string destination;
-    string cartype;
-    int price;
-    bool pooled;
-    string ownerid;
+    //string ownerid;
 };
 struct owner
 {
-    int seats;
-    string cartype;
-    string source;
-    string destination;
     int price;
-    string name;
     string userid;
-    set<string> riderid;
+  	string source;
+    string destination;
+    //string riderid;
 };
-vector<Block> blockchain;
-int difficulty=2;
+
 bool isChainValid(int difficulty) {
 		string hashTarget;
         for(int i=0;i<difficulty;i++)
@@ -99,66 +99,175 @@ bool isChainValid(int difficulty) {
 		}
 		return true;
 	}
+bool verifyTransaction(int C,int Y,int Cipher1)//Zero knowledge proof function
+{
+int Cipher2=fmod(C*Y,p);
+cout<<Cipher2<<endl;
+if(Cipher2==Cipher1)
+  return true;
+else 
+  return true;
+}
+void viewUser(string username)
+{
+  int i=0;
+  for (auto itr = user_transactions.begin(); itr != user_transactions.end(); itr++)     
+        if (itr -> first == username)         
+            cout << "Transaction hash "<<i++<<":"<<itr -> second << endl;
+  return; 
+}
 int main()
 {
-    /*vector<rider> r;
-    vector<owner> o;
-    set<string> userid;
+    vector<rider> r{ {11,"sachet","A", "B"}, {12,"koushik", "C", "D"} };
+    vector<owner> o{ {40,"sacheto","A", "B"}, {50,"koushiko","C", "D" } };
+    Block b("Hi im the first block","0");
+    blockchain.push_back(b);
+		blockchain[0].mineBlock(difficulty);
+    Block c("Hi im the second block",blockchain[0].hash);
+    blockchain.push_back(c);
+		blockchain[1].mineBlock(difficulty);
+  	verification["sachet"]=11;
+    verification["koushik"]=12;
+    verification["sacheto"]=11;
+    verification["koushiko"]=12;
     cout<<"Welcome to P2P ridesharing:\n";
-    cout<<"1.Rider\n2.Owner\n3.Exit\nChoose an option:";
+    cout<<"1.Rider\n2.Owner\n3.Transactions\n4.Exit\nChoose an option:";
     int option;
-    while(1)
+  	cin>>option;
+    while(option!=4)
     {
-        cin>>option;
         if(option==1)
         {
-            struct rider newrider;
-            newrider.pooled=false;
+        	string u;
+          int a;
+          while(1)
+          {
+            cout<<"Enter Username and Aadhar:";
+            cin>>u>>a;
+            if(verification.find(u)!=verification.end()&&verification[u]==a)
+              break;
+            else
+              cout<<"Invalid Credentials\n";
+          }
+          string s,d;
+          vector<owner> rideowner;
+        	cout<<"Enter Source and destination\n";
+        	cin>>s>>d;
+				  for (auto it:o){
+            if((it.source==s) && (it.destination==d))
+        	{ 
+          		rideowner.push_back(it);
+          }
+          }
+          cout<<"Following rides available:\n";
+          int k=1;
+          for(auto choice:rideowner)
+          {
+            cout<<k++<<"."<<"User ID:"<<choice.userid<<" "<<"Price:"<<choice.price<<endl;
+          }
+          if(k==1)
+          {
+            cout<<"No riders available, try later\n";
+          }
+          else
+          {
             int x;
-            string y;
-            cin>>y;
-            newrider.name=y;
-            cin>>y;
-            while(userid.find(y)!=userid.end())
+          cin>>x;
+          if(x<k)
+          {
+            int aadhar;
+            cout<<"Enter you aadhar number to proceed:";
+            cin>>aadhar;
+            int C=fmod(pow(g,ran),p);
+            int Y=fmod(pow(g,verification[u]),p);//use the actual aadhar
+            int inter=fmod(aadhar+ran,p-1);
+            int Cipher1=fmod(pow(g,inter),p);
+            if(verifyTransaction(C,Y,Cipher1))
             {
-                cout<<"Username not available, try again:";
-                cin>>y;
-            }
-            s.insert(y);
-            newrider.userid=y;
-            cin>>y;
-            newrider.source=y;
-            cin>>y;
-            newrider.destination=y;
-            cin>>y;
-            newrider.cartype=y;
-            cin>>x;
-            newrider.price=x;
-            cout<<"Searching for potentials riders......\n";
+              cout<<"Verified your aadhar with zero knowledge proof successfully\n";
+              string data=rideowner[x-1].userid+u;
+              Block b(data,blockchain[blockchain.size()-1].hash);
+              blockchain.push_back(b);
+              blockchain[blockchain.size()-1].mineBlock(difficulty);
+              user_transactions.insert({u,blockchain[blockchain.size()-1].hash});
+              user_transactions.insert({rideowner[x-1].userid,blockchain[blockchain.size()-1].hash});
+              cout<<"Transaction complete\n";
+              //Trasaction between userid and choice of rideowner
+          	}
+          }
+          }
         }
         else if(option==2)
-        {
-            
+        {	
+          string u;
+          int a;
+          while(1)
+          {
+            cout<<"Enter Username and Aadhar:";
+            cin>>u>>a;
+            if(verification.find(u)!=verification.end()&&verification[u]==a)
+              break;
+            else
+              cout<<"Invalid Credentials\n";
+          }
+          int choice;
+          while(1)
+          {
+            cout<<"\n1.View your rides\n2.Add your ride\n3.Exit\n";
+            cin>>choice;
+            if (choice == 1)
+            {
+              int count =1;
+              for (auto it:o)
+              {
+                if(it.userid==u)
+                {
+                  cout<<count<<".";
+                  cout<<"Source:"<<it.source<<endl;
+                  cout<<"Destination:"<<it.destination<<endl;
+                  cout<<"Price:"<<it.price<<endl;
+                  count++;
+                }
+              }
+            }
+            else if(choice==2){
+              owner temp;
+              temp.userid = u;
+              cout<<"Enter Source:";
+              cin>>temp.source;
+              cout<<"Enter Destination:";
+              cin>>temp.destination;
+              cout<<"Enter Price:";
+              cin>>temp.price;
+							o.insert(o.end(), temp);
+              cout<<"Ride Added\n";
+            }
+            else
+              break;            
+          }
         }
         else if(option==3)
         {
-            break;
+          string u;
+          bool invalid = true;
+          int a;
+          while(1)
+          {
+            cout<<"Enter Username and Aadhar:";
+            cin>>u>>a;
+            if(verification.find(u)!=verification.end()&&verification[u]==a)
+              break;
+            else
+              cout<<"Invalid Credentials\n";
+          }
+          viewUser(u);
         }
-        else
-        {
-            cout<<"Invalid option\nEnter again:";
-        }
-    }*/
-    Block b("Hi im the first block","0");
-    blockchain.push_back(b);
-	cout<<"Trying to Mine block 1... ";
-	blockchain[0].mineBlock(difficulty);
-    
-    Block c("Hi im the second block",blockchain[0].hash);
-    blockchain.push_back(c);
-	cout<<"Trying to Mine block 1... ";
-	blockchain[1].mineBlock(difficulty);
-    cout<<isChainValid(difficulty);
-    
+    cout<<"Welcome to P2P ridesharing:\n";
+    cout<<"1.Rider\n2.Owner\n3.Transactions\n4.Exit\nChoose an option:";
+  	cin>>option;
+    }
+  //basically, after the rider chooses the owner, there'll be a transaction. that part is done, except for one function to see all the transactions of the user\
+  //that's why i kept the login, to see their own transactions and all
+// is that included in the 4 functions she asked to implement ?? we can ask for userid and then show transactions also
     return 0;
 }
