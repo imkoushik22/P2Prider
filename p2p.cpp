@@ -118,15 +118,15 @@ void viewUser(string username)
 }
 int main()
 {
-    vector<rider> r{ {11,"sachet","A", "B"}, {12,"koushik", "C", "D"} };
-    vector<owner> o{ {40,"sacheto","A", "B"}, {50,"koushiko","C", "D" } };
+    vector<rider> r{ {452368,"sachet","andheri", "bandra"}, {214567,"koushik", "vashi", "panvel"}, {254789, "nividh", "bandra", "panvel"}, {624578, "Alpana", "vashi", "bandra"} };
+    vector<owner> o{ {40,"Vijay","bandra", "panvel"}, {50,"Peyyeti","bandra", "panvel" }, {70, "Neal", "andheri", "bandra"} };
     Block b("Hi im the first block","0");
     blockchain.push_back(b);
-		blockchain[0].mineBlock(difficulty);
+    blockchain[0].mineBlock(difficulty);
     Block c("Hi im the second block",blockchain[0].hash);
     blockchain.push_back(c);
-		blockchain[1].mineBlock(difficulty);
-  	verification["sachet"]=11;
+    blockchain[1].mineBlock(difficulty);
+    verification["sachet"]=11;
     verification["koushik"]=12;
     verification["sacheto"]=11;
     verification["koushiko"]=12;
@@ -138,7 +138,7 @@ int main()
     {
         if(option==1)
         {
-        	string u;
+          string u;
           int a;
           while(1)
           {
@@ -167,11 +167,11 @@ int main()
           }
           if(k==1)
           {
-            cout<<"No riders available, try later\n";
+            cout<<"No rides available, try later\n";
           }
           else
           {
-            int x;
+          int x;
           cin>>x;
           if(x<k)
           {
@@ -266,8 +266,5 @@ int main()
     cout<<"1.Rider\n2.Owner\n3.Transactions\n4.Exit\nChoose an option:";
   	cin>>option;
     }
-  //basically, after the rider chooses the owner, there'll be a transaction. that part is done, except for one function to see all the transactions of the user\
-  //that's why i kept the login, to see their own transactions and all
-// is that included in the 4 functions she asked to implement ?? we can ask for userid and then show transactions also
     return 0;
 }
