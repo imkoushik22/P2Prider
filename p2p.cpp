@@ -126,10 +126,13 @@ int main()
     Block c("Hi im the second block",blockchain[0].hash);
     blockchain.push_back(c);
     blockchain[1].mineBlock(difficulty);
-    verification["sachet"]=11;
-    verification["koushik"]=12;
-    verification["sacheto"]=11;
-    verification["koushiko"]=12;
+    verification["sachet"]=452368;
+    verification["koushik"]=214567;
+    verification["nividh"]=254789;
+    verification["Alpana"]=624578;
+    verification["Vijay"]=457896;
+    verification["Peyyeti"]=214785;
+    verification["Neal"]=301254;
     cout<<"Welcome to P2P ridesharing:\n";
     cout<<"1.Rider\n2.Owner\n3.Transactions\n4.Exit\nChoose an option:";
     int option;
